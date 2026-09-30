@@ -1,9 +1,9 @@
 {
-    "name": "CollectorDeployer",
-    "version_number": "1.0.0",
-    "website_url": "",
-    "description": "One-click deploy 40 orbital collectors on the gas giant equator grid | 一键在气态巨星赤道格点部署40个轨道采集器",
-    "dependencies": [
-        "xiaoye97-BepInEx-5.4.17"
-    ]
+  "name": "CollectorDeployer",
+  "description": "One click on a gas giant deploys 40 orbital collectors evenly on the equator grid | 气态巨星上一键在赤道格点均匀部署 40 个轨道采集器",
+  "version_number": "1.0.0",
+  "website_url": "",
+  "dependencies": [
+    "xiaoye97-BepInEx-5.4.17"
+  ]
 }

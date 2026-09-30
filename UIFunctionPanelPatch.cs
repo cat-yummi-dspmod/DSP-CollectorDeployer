@@ -97,7 +97,7 @@ namespace CollectorDeployer
                 _labelLcid = -1;
                 RefreshLabel();
 
-                CollectorDeployerPlugin.Log?.LogInfo("快速部署按钮已创建:\n" + DumpHierarchy(go.transform, 0));
+                CollectorDeployerPlugin.Log?.LogDebug("一键部署按钮已创建:\n" + DumpHierarchy(go.transform, 0));
             }
             catch (System.Exception e)
             {

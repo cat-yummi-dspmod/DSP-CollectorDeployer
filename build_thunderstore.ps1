@@ -22,7 +22,7 @@ New-Item -ItemType Directory -Path $TempDir | Out-Null
 # Copy files
 Copy-Item ".\manifest.json" -Destination $TempDir
 Copy-Item ".\README.md" -Destination $TempDir
-if (Test-Path ".\icon.png") { Copy-Item ".\icon.png" -Destination $TempDir }
+Copy-Item ".\icon.png" -Destination $TempDir
 Copy-Item ".\bin\Release\net472\$ModName.dll" -Destination $TempDir
 
 # Create zip

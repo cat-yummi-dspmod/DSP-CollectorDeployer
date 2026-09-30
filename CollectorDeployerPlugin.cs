@@ -7,7 +7,7 @@ namespace CollectorDeployer
     [BepInPlugin(PLUGIN_GUID, PLUGIN_NAME, PLUGIN_VERSION)]
     public class CollectorDeployerPlugin : BaseUnityPlugin
     {
-        public const string PLUGIN_GUID = "com.dspmod.collectordeployer";
+        public const string PLUGIN_GUID = "com.yummi.dsp.collectordeployer";
         public const string PLUGIN_NAME = "轨道采集器一键部署 (Collector Deployer)";
         public const string PLUGIN_VERSION = "1.0.0";
 

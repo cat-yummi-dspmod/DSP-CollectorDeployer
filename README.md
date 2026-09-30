@@ -5,6 +5,8 @@
 
 ***Deploy 40 orbital collectors on a gas giant with one click***
 
+![Screenshot](screenshots/en.png)
+
 ## Overview
 
 * On a gas giant, a **Deploy Orbital Collectors** button appears to the left of the vanilla "Manual Collecting Resources on Gas Giant" button.
@@ -52,6 +54,8 @@
 ***气态巨星上一键部署 40 个轨道采集器***
 
 关键字：一键部署、一键建造
+
+![截图](screenshots/zh.png)
 
 ## 功能说明
 

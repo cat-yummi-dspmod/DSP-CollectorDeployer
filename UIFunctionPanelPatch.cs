@@ -1,8 +1,11 @@
+using System;
+using System.Collections.Generic;
 using System.Text;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using Object = UnityEngine.Object;
 
 namespace CollectorDeployer
 {
@@ -12,11 +15,20 @@ namespace CollectorDeployer
         private const float Gap = 8f;
         private const int CollectorItemId = 2105;
 
-        private static UIButton _button;
-        private static RectTransform _rect;
-        private static RectTransform _widthRect;
-        private static Text[] _texts;
-        private static int _labelLcid = -1;
+        private sealed class DeployButton
+        {
+            public UIButton button;
+            public RectTransform rect;
+            public RectTransform widthRect;
+            public Text[] texts;
+            public int labelLcid = -1;
+            public Func<string> label;
+            public Func<string> tipTitle;
+            public Func<string> tipText;
+        }
+
+        private static DeployButton _local;
+        private static DeployButton _galaxy;
         private static bool _createFailed;
         private static readonly Vector3[] Corners = new Vector3[4];
 
@@ -28,132 +40,168 @@ namespace CollectorDeployer
             if (src == null)
                 return;
 
-            if (_button == null)
+            if (_local == null || _galaxy == null)
             {
                 if (_createFailed)
                     return;
-                Create(__instance);
-                if (_button == null)
+                CreateButtons(__instance);
+                if (_local == null || _galaxy == null)
                     return;
             }
 
             bool show = src.gameObject.activeSelf;
-            if (_button.gameObject.activeSelf != show)
-                _button.gameObject.SetActive(show);
+            bool showGalaxy = show && CollectorDeployerPlugin.EnableGalaxyDeploy.Value;
+            SetActive(_local, show);
+            SetActive(_galaxy, showGalaxy);
             if (!show)
                 return;
 
-            RefreshLabel();
-            Layout(__instance);
+            float width = SyncSizeAndGetWidth(__instance, _local);
+            RefreshLabel(_local);
+            int slot = 1;
+            if (showGalaxy)
+            {
+                SyncSizeAndGetWidth(__instance, _galaxy);
+                RefreshLabel(_galaxy);
+                Place(__instance, _galaxy, width, slot++);
+            }
+            Place(__instance, _local, width, slot);
         }
 
-        internal static void DestroyButton()
+        internal static void DestroyButtons()
         {
-            if (_button != null)
-                Object.Destroy(_button.gameObject);
-            _button = null;
+            if (_local?.button != null)
+                Object.Destroy(_local.button.gameObject);
+            if (_galaxy?.button != null)
+                Object.Destroy(_galaxy.button.gameObject);
+            _local = null;
+            _galaxy = null;
         }
 
-        private static void Create(UIFunctionPanel panel)
+        private static void CreateButtons(UIFunctionPanel panel)
         {
-            UIButton src = panel.extractButton;
             try
             {
-                GameObject go = Object.Instantiate(src.gameObject, src.transform.parent, false);
-                go.name = "collector-deployer-button";
-
-                foreach (Localizer localizer in go.GetComponentsInChildren<Localizer>(true))
-                    Object.Destroy(localizer);
-                foreach (EventTrigger trigger in go.GetComponentsInChildren<EventTrigger>(true))
-                    Object.Destroy(trigger);
-
-                _button = go.GetComponent<UIButton>();
-                _rect = go.GetComponent<RectTransform>();
-                _button.eventReceiver = null;
-                _button.highlighted = false;
-                _button.tips.itemId = 0;
-                if (_button.button != null)
-                {
-                    _button.button.onClick = new Button.ButtonClickedEvent();
-                    _button.button.onClick.AddListener(CollectorDeploy.Request);
-                }
-                else
-                {
-                    _button.onClick += _ => CollectorDeploy.Request();
-                }
-
-                _widthRect = FindCounterpart(src.transform, panel.extractButtonTrans, go.transform) as RectTransform ?? _rect;
-
-                if (panel.extractProgressImage != null
-                    && FindCounterpart(src.transform, panel.extractProgressImage.transform, go.transform) is Transform progress
-                    && progress.GetComponent<Image>() is Image progressImage)
-                {
-                    progressImage.fillAmount = 0f;
-                    progressImage.enabled = false;
-                }
-
-                _texts = go.GetComponentsInChildren<Text>(true);
-                SetIcon(go);
-                _labelLcid = -1;
-                RefreshLabel();
-
-                CollectorDeployerPlugin.Log?.LogDebug("一键部署按钮已创建:\n" + DumpHierarchy(go.transform, 0));
+                _local = CreateButton(panel, "collector-deployer-button", CollectorDeploy.RequestLocal,
+                    () => Lang.ButtonLabel, () => Lang.TipTitle, () => Lang.TipText);
+                _galaxy = CreateButton(panel, "collector-deployer-galaxy-button", CollectorDeploy.RequestGalaxy,
+                    () => Lang.GalaxyButtonLabel, () => Lang.GalaxyTipTitle, () => Lang.GalaxyTipText);
+                CollectorDeployerPlugin.Log?.LogDebug("一键部署按钮已创建:\n" + DumpHierarchy(_local.button.transform, 0));
             }
-            catch (System.Exception e)
+            catch (Exception e)
             {
                 _createFailed = true;
                 CollectorDeployerPlugin.Log?.LogError($"创建按钮失败: {e}");
-                DestroyButton();
+                DestroyButtons();
             }
         }
 
-        private static void RefreshLabel()
+        private static DeployButton CreateButton(UIFunctionPanel panel, string name, Action onClick,
+            Func<string> label, Func<string> tipTitle, Func<string> tipText)
+        {
+            UIButton src = panel.extractButton;
+            GameObject go = Object.Instantiate(src.gameObject, src.transform.parent, false);
+            go.name = name;
+
+            foreach (Localizer localizer in go.GetComponentsInChildren<Localizer>(true))
+                Object.Destroy(localizer);
+            foreach (EventTrigger trigger in go.GetComponentsInChildren<EventTrigger>(true))
+                Object.Destroy(trigger);
+
+            var result = new DeployButton
+            {
+                button = go.GetComponent<UIButton>(),
+                rect = go.GetComponent<RectTransform>(),
+                label = label,
+                tipTitle = tipTitle,
+                tipText = tipText,
+            };
+
+            UIButton button = result.button;
+            button.eventReceiver = null;
+            button.highlighted = false;
+            button.tips.itemId = 0;
+            if (button.button != null)
+            {
+                button.button.onClick = new Button.ButtonClickedEvent();
+                button.button.onClick.AddListener(() => onClick());
+            }
+            else
+            {
+                button.onClick += _ => onClick();
+            }
+
+            result.widthRect = FindCounterpart(src.transform, panel.extractButtonTrans, go.transform) as RectTransform ?? result.rect;
+
+            if (panel.extractProgressImage != null
+                && FindCounterpart(src.transform, panel.extractProgressImage.transform, go.transform) is Transform progress
+                && progress.GetComponent<Image>() is Image progressImage)
+            {
+                progressImage.fillAmount = 0f;
+                progressImage.enabled = false;
+            }
+
+            result.texts = go.GetComponentsInChildren<Text>(true);
+            SetIcon(go);
+            go.SetActive(false);
+            return result;
+        }
+
+        private static void SetActive(DeployButton b, bool active)
+        {
+            if (b.button.gameObject.activeSelf != active)
+                b.button.gameObject.SetActive(active);
+        }
+
+        private static void RefreshLabel(DeployButton b)
         {
             int lcid = Localization.CurrentLanguageLCID;
-            if (lcid == _labelLcid)
+            if (lcid == b.labelLcid)
                 return;
-            _labelLcid = lcid;
+            b.labelLcid = lcid;
 
-            string label = Lang.ButtonLabel;
-            if (_texts != null && _texts.Length > 0)
+            string label = b.label();
+            Text[] texts = b.texts;
+            if (texts != null && texts.Length > 0)
             {
                 string[] lines = label.Split('\n');
-                if (_texts.Length >= lines.Length && lines.Length > 1)
+                if (texts.Length >= lines.Length && lines.Length > 1)
                 {
-                    for (int i = 0; i < _texts.Length; i++)
-                        _texts[i].text = i < lines.Length ? lines[i] : "";
+                    for (int i = 0; i < texts.Length; i++)
+                        texts[i].text = i < lines.Length ? lines[i] : "";
                 }
                 else
                 {
-                    _texts[0].text = label;
-                    for (int i = 1; i < _texts.Length; i++)
-                        _texts[i].text = "";
+                    texts[0].text = label;
+                    for (int i = 1; i < texts.Length; i++)
+                        texts[i].text = "";
                 }
             }
 
-            _button.tips.tipTitle = Lang.TipTitle;
-            _button.tips.tipText = Lang.TipText;
+            b.button.tips.tipTitle = b.tipTitle();
+            b.button.tips.tipText = b.tipText();
         }
 
-        // The panel resizes the extract button every frame, so mirror its size and sit just to its left.
-        private static void Layout(UIFunctionPanel panel)
+        // The panel resizes the extract button every frame, so mirror its size; returns its width in the parent's space.
+        private static float SyncSizeAndGetWidth(UIFunctionPanel panel, DeployButton b)
         {
-            RectTransform srcRoot = panel.extractButton.transform as RectTransform;
+            RectTransform srcRoot = (RectTransform)panel.extractButton.transform;
             RectTransform srcWidthRect = panel.extractButtonTrans != null ? panel.extractButtonTrans : srcRoot;
-            if (srcRoot == null || srcWidthRect == null)
-                return;
 
-            _rect.sizeDelta = srcRoot.sizeDelta;
-            if (_widthRect != _rect)
-                _widthRect.sizeDelta = srcWidthRect.sizeDelta;
+            b.rect.sizeDelta = srcRoot.sizeDelta;
+            if (b.widthRect != b.rect)
+                b.widthRect.sizeDelta = srcWidthRect.sizeDelta;
 
             Transform parent = srcRoot.parent;
             srcWidthRect.GetWorldCorners(Corners);
-            float left = parent.InverseTransformPoint(Corners[0]).x;
-            float right = parent.InverseTransformPoint(Corners[2]).x;
-            float width = right - left;
+            return parent.InverseTransformPoint(Corners[2]).x - parent.InverseTransformPoint(Corners[0]).x;
+        }
 
-            _rect.anchoredPosition = srcRoot.anchoredPosition - new Vector2(width + Gap, 0f);
+        // slot 1 is directly left of the extract button, slot 2 left of that.
+        private static void Place(UIFunctionPanel panel, DeployButton b, float width, int slot)
+        {
+            RectTransform srcRoot = (RectTransform)panel.extractButton.transform;
+            b.rect.anchoredPosition = srcRoot.anchoredPosition - new Vector2((width + Gap) * slot, 0f);
         }
 
         private static void SetIcon(GameObject go)
@@ -177,7 +225,7 @@ namespace CollectorDeployer
             if (!srcTarget.IsChildOf(srcRoot))
                 return null;
 
-            var path = new System.Collections.Generic.List<int>();
+            var path = new List<int>();
             for (Transform t = srcTarget; t != srcRoot; t = t.parent)
                 path.Add(t.GetSiblingIndex());
 

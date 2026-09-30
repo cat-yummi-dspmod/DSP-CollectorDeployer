@@ -29,6 +29,18 @@
 * Normally the deployment happens right away, without any confirmation.
 * Only if your inventory can't hold everything the removal returns, a dialog lists the items that would be dropped and asks whether to continue.
 
+## Whole galaxy (optional, off by default)
+
+* Turn on `EnableGalaxyDeploy` to get a second button, **Deploy in Whole Galaxy**, between the two buttons above.
+* It does the same thing on **every gas giant in the galaxy**, including ones you have never visited, without flying there.
+* A summary is always shown first: how many gas giants, how many collectors will be built and removed, which planets are skipped, and any items that would drop.
+* If you don't have enough collectors for all of them, nothing is deployed.
+
+## Config
+
+* `BepInEx/config/com.yummi.dsp.collectordeployer.cfg`, or the r2modman Config editor
+  * `EnableGalaxyDeploy`: `false` (default) or `true`. Shows the whole-galaxy button.
+
 ## Language
 
 * The button and messages are in Chinese when the game language is Chinese, and in English otherwise.
@@ -78,6 +90,18 @@
 
 * 正常情况下直接部署，不弹任何确认。
 * 只有当背包放不下拆除返还的物品时，才会弹窗列出会掉落的物品，并询问是否继续。
+
+## 全银河部署（可选，默认关闭）
+
+* 打开 `EnableGalaxyDeploy` 后，两个按钮之间会多出一个**一键部署全银河**按钮。
+* 对**全银河所有气态巨星**做同样的部署，包括没去过的，不需要飞过去。
+* 执行前一定会弹窗显示汇总：多少颗气巨、新建和拆除多少个、哪些星球被跳过，以及会掉落的物品。
+* 采集器不够全部部署时，一颗都不部署。
+
+## 配置
+
+* `BepInEx/config/com.yummi.dsp.collectordeployer.cfg`，或 r2modman 的 Config editor
+  * `EnableGalaxyDeploy`：`false`（默认）或 `true`，是否显示全银河部署按钮。
 
 ## 语言
 

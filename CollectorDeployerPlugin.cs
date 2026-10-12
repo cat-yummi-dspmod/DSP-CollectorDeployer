@@ -10,7 +10,7 @@ namespace CollectorDeployer
     {
         public const string PLUGIN_GUID = "com.yummi.dsp.collectordeployer";
         public const string PLUGIN_NAME = "轨道采集器一键部署 (Collector Deployer)";
-        public const string PLUGIN_VERSION = "1.1.0";
+        public const string PLUGIN_VERSION = "1.1.1";
 
         private static readonly Harmony Harmony = new Harmony(PLUGIN_GUID);
         internal static ManualLogSource Log;

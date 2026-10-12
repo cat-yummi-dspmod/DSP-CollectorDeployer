@@ -572,10 +572,24 @@ namespace CollectorDeployer
             return string.IsNullOrEmpty(proto.name) ? proto.Name.Translate() : proto.name;
         }
 
+        // Matches BuildTool_Click when gas can power collectors; Genesis Book zeros gasTotalHeat and
+        // workEnergyPerTick and patches the build tool to allow collectors on any gas giant (IsSuit).
         private static bool CanCollectorWork(PlanetData planet, PrefabDesc desc)
         {
+            if (planet.type != EPlanetType.Gas)
+                return false;
+
+            if (desc.workEnergyPerTick <= 0f)
+                return true;
+
             if (planet.gasItems == null || planet.gasItems.Length == 0)
                 return false;
+
+            // Runtime still collects at full speed when heat is 0 (PlanetTransport); only the vanilla
+            // build preview treats that case as NotEnoughEnergyToWorkCollection.
+            if (planet.gasTotalHeat == 0.0)
+                return true;
+
             double collectPower = desc.stationCollectSpeed * planet.gasTotalHeat;
             if (collectPower == 0.0)
                 return false;

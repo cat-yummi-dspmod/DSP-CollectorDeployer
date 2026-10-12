@@ -16,7 +16,7 @@
 		<PackageId>CollectorDeployer</PackageId>
 		<BepInExPluginGuid>com.yummi.dsp.collectordeployer</BepInExPluginGuid>
 		<Description>One click on a gas giant deploys 40 orbital collectors evenly on the equator grid | 气态巨星上一键在赤道格点均匀部署 40 个轨道采集器</Description>
-		<Version>1.1.0</Version>
+		<Version>1.1.1</Version>
 		<Authors>cat-yummi</Authors>
 		<LangVersion>latest</LangVersion>
 	</PropertyGroup>

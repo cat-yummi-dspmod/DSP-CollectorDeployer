@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.0
+
+- **YummiHarness**: `Harness.PatchAll` + `[Guard]` on patches; Thunderstore dependency `cat_yummi-YummiHarness`.
+
 ## 1.1.1
 
 - Fix false **“planet cannot power orbital collectors”** when playing with **Genesis Book** (and similar overhauls that zero `gasTotalHeat` / collector `workEnergyPerTick`).
@@ -18,6 +22,10 @@
 ---
 
 # 更新日志
+
+## 1.2.0
+
+- **YummiHarness**：使用 `Harness.PatchAll` 与 `[Guard]` 指纹校验；Thunderstore 依赖 `cat_yummi-YummiHarness`。
 
 ## 1.1.1
 

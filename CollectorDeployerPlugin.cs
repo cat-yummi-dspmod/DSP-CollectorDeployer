@@ -11,7 +11,7 @@ namespace CollectorDeployer
     {
         public const string PLUGIN_GUID = "com.yummi.dsp.collectordeployer";
         public const string PLUGIN_NAME = "轨道采集器一键部署 (Collector Deployer)";
-        public const string PLUGIN_VERSION = "1.1.1";
+        public const string PLUGIN_VERSION = "1.2.0";
 
         private static readonly Harmony Harmony = new Harmony(PLUGIN_GUID);
         private static readonly YummiHarness.PatchOptions HarnessOptions = new YummiHarness.PatchOptions { ModName = "CollectorDeployer" };

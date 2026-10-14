@@ -32,6 +32,8 @@
 		<PackageReference Include="BepInEx.PluginInfoProps" Version="1.0.0" />
 		<PackageReference Include="UnityEngine.Modules" Version="2022.3.53" IncludeAssets="compile" />
 		<PackageReference Include="DysonSphereProgram.GameLibs" Version="*-*" />
+		<!-- Safe-injection prerequisite mod | 安全注入前置 mod -->
+		<ProjectReference Include="..\YummiHarness\plugin\YummiHarness.csproj" Private="false" />
 	</ItemGroup>
 	<PropertyGroup>
 		<ProfileDir Condition=" '$(ProfileDir)' == '' ">$(APPDATA)\r2modmanPlus-local\DysonSphereProgram\profiles\Default</ProfileDir>

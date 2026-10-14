@@ -34,6 +34,7 @@ namespace CollectorDeployer
 
         [HarmonyPostfix]
         [HarmonyPatch("_OnUpdate")]
+        [YummiHarness.Guard("2a1ab2fb257cca98")]
         public static void OnUpdate_Postfix(UIFunctionPanel __instance)
         {
             UIButton src = __instance.extractButton;

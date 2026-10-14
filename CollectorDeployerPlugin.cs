@@ -6,6 +6,7 @@ using HarmonyLib;
 namespace CollectorDeployer
 {
     [BepInPlugin(PLUGIN_GUID, PLUGIN_NAME, PLUGIN_VERSION)]
+    [BepInDependency(YummiHarness.HarnessPlugin.PluginGuid)]
     public class CollectorDeployerPlugin : BaseUnityPlugin
     {
         public const string PLUGIN_GUID = "com.yummi.dsp.collectordeployer";
@@ -13,6 +14,7 @@ namespace CollectorDeployer
         public const string PLUGIN_VERSION = "1.1.1";
 
         private static readonly Harmony Harmony = new Harmony(PLUGIN_GUID);
+        private static readonly YummiHarness.PatchOptions HarnessOptions = new YummiHarness.PatchOptions { ModName = "CollectorDeployer" };
         internal static ManualLogSource Log;
         internal static ConfigEntry<bool> EnableGalaxyDeploy;
 
@@ -23,7 +25,7 @@ namespace CollectorDeployer
                 "Show a second button that deploys 40 orbital collectors on every gas giant in the galaxy, including ones you have never visited.\n" +
                 "显示第二个按钮，在全银河所有气态巨星（包括没去过的）上各部署 40 个轨道采集器。");
 
-            Harmony.PatchAll(typeof(UIFunctionPanelPatch));
+            YummiHarness.Harness.PatchAll(Harmony, typeof(UIFunctionPanelPatch), HarnessOptions);
             Log.LogInfo($"{PLUGIN_NAME} v{PLUGIN_VERSION} 已加载");
         }
 
